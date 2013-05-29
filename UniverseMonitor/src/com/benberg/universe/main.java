@@ -31,6 +31,7 @@ public class main {
 	
 		main m = new main();
 		m.start();
+		//Testing
 		
 	}
 	String _current="";
