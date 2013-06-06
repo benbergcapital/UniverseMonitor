@@ -108,7 +108,7 @@ public class main {
 		  connection.setConnectTimeout(5000);
 		  connection.setReadTimeout(5000);
 		  BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-	System.out.println(URL+ " Is UP");
+		  WriteLog(URL+ " Is UP");
 		
 //		catch(IOException e)
 //		{
