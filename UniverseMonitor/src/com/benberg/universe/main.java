@@ -7,14 +7,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Pattern;
 
 //testing3
 
@@ -35,21 +40,22 @@ public class main {
 		//Testing
 		
 	}
-	String _current="";
+
 	private void start() throws IOException 
 	
 	{
 		WriteLog("Starting Universe Monitor");
 		Timer _timerquotes = new Timer ();
+		final String _current = getIP();
 		TimerTask _hourlyTaskquotes = new TimerTask () {
 		    @Override
 		    public void run () 
 		    {
 		    	try{
 		    		WriteLog("Checking services ");
-		    		String _service = "http://10.0.0.5:5123/web?wsdl";
-		    		String _website = "http://10.0.0.5/WebTest.php";
-		    		String _Soap = "http://10.0.0.5/QuickNews3.php";
+		    		String _service = "http://"+_current+":5123/web?wsdl";
+		    		String _website = "http://"+_current+"/WebTest.php";
+		    		String _Soap = "http://"+_current+"/QuickNews3.php";
 		    		String _directConnect = "http://ben512.no-ip.org/";
 		    			  
 		    		  testurl(_service);
@@ -67,7 +73,7 @@ public class main {
 					WriteLog(">> "+e.toString());
 				try {
 					Runtime.getRuntime().exec("sh restart.sh");
-				//	WriteLog("Restarting System...");
+					WriteLog("Restarting System...");
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -102,7 +108,7 @@ public class main {
 	{
 	//	try
 		//{
-		_current = URL;
+	//	_current = URL;
 		  URL _url = new URL(URL);
 		  URLConnection connection = _url.openConnection();
 		  connection.setConnectTimeout(5000);
@@ -124,6 +130,44 @@ public class main {
 		WriteLog("Attempting a restart");
 		Runtime.getRuntime().exec("sh restart.sh");
 		
+	}
+
+	private String getIP()
+	{
+		// TODO Auto-generated method stub
+				NetworkInterface iface = null;
+				String ethr;
+				String myip = "";
+				String regex = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +	"([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." + "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+				try
+				{
+					for(Enumeration ifaces = NetworkInterface.getNetworkInterfaces();ifaces.hasMoreElements();)
+					{
+						iface = (NetworkInterface)ifaces.nextElement();
+						ethr = iface.getDisplayName();
+
+						if (Pattern.matches("eth[0-9]", ethr))
+						{
+							WriteLog("Interface:" + ethr);
+							InetAddress ia = null;
+							for(Enumeration ips = iface.getInetAddresses();ips.hasMoreElements();)
+							{
+								ia = (InetAddress)ips.nextElement();
+								if (Pattern.matches(regex, ia.getCanonicalHostName()))
+								{
+									myip = ia.getCanonicalHostName();
+									return myip;
+								}
+							}
+						}
+					}
+				}
+				catch (SocketException e){
+				return null;
+				}
+		
+		
+		return null;
 	}
 	
 	  public void WriteLog(String Message)
@@ -161,7 +205,12 @@ public class main {
 	    	
 	    	
 	    }
-	}
+
+
+
+
+
+}
 	
 	
 
